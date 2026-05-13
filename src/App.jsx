@@ -1,66 +1,122 @@
 export default function App() {
   return (
-    <div className="bg-black min-h-screen flex items-center justify-center overflow-hidden">
+    <Game />
+  )
+}
+
+import { useEffect, useState } from "react"
+
+function Game() {
+  const [playerX, setPlayerX] = useState(180)
+  const [enemyY, setEnemyY] = useState(-60)
+  const [enemyX, setEnemyX] = useState(
+    Math.floor(Math.random() * 360)
+  )
+  const [score, setScore] = useState(0)
+  const [gameOver, setGameOver] = useState(false)
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "ArrowLeft") {
+        setPlayerX((prev) => Math.max(prev - 25, 0))
+      }
+
+      if (e.key === "ArrowRight") {
+        setPlayerX((prev) => Math.min(prev + 25, 360))
+      }
+    }
+
+    window.addEventListener("keydown", handleKey)
+
+    return () =>
+      window.removeEventListener("keydown", handleKey)
+  }, [])
+
+  useEffect(() => {
+    if (gameOver) return
+
+    const interval = setInterval(() => {
+      setEnemyY((prev) => {
+        const next = prev + 8
+
+        if (
+          next > 500 &&
+          enemyX < playerX + 40 &&
+          enemyX + 40 > playerX
+        ) {
+          setGameOver(true)
+        }
+
+        if (next > 600) {
+          setScore((s) => s + 1)
+          setEnemyX(Math.floor(Math.random() * 360))
+          return -60
+        }
+
+        return next
+      })
+    }, 30)
+
+    return () => clearInterval(interval)
+  }, [enemyX, playerX, gameOver])
+
+  const restart = () => {
+    setPlayerX(180)
+    setEnemyY(-60)
+    setEnemyX(Math.floor(Math.random() * 360))
+    setScore(0)
+    setGameOver(false)
+  }
+
+  return (
+    <div className="bg-black min-h-screen flex flex-col items-center justify-center text-white overflow-hidden">
       
-      <div className="relative flower">
-        
-        {/* stem */}
-        <div className="w-2 h-72 bg-cyan-400 mx-auto rounded-full animate-sway"></div>
+      <h1 className="text-4xl mb-4 font-bold text-cyan-400">
+        Dodge Game
+      </h1>
 
-        {/* leaves */}
-        <div className="absolute bottom-32 -left-10 w-20 h-10 bg-cyan-300 rounded-full rotate-[-30deg] opacity-80"></div>
-
-        <div className="absolute bottom-48 left-6 w-20 h-10 bg-cyan-300 rounded-full rotate-[30deg] opacity-80"></div>
-
-        {/* petals */}
-        <div className="absolute top-[-70px] left-1/2 -translate-x-1/2">
-          
-          <div className="relative w-32 h-32">
-            
-            <div className="petal rotate-0"></div>
-            <div className="petal rotate-45"></div>
-            <div className="petal rotate-90"></div>
-            <div className="petal rotate-[135deg]"></div>
-
-            {/* center */}
-            <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-yellow-200 rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_30px_#fde68a]"></div>
-
-          </div>
-        </div>
-
+      <div className="text-xl mb-4">
+        Score: {score}
       </div>
 
-      <style>{`
-        .petal {
-          position: absolute;
-          width: 50px;
-          height: 100px;
-          background: #a5f3fc;
-          border-radius: 9999px;
-          left: 50%;
-          top: 50%;
-          transform-origin: center bottom;
-          opacity: 0.9;
-          box-shadow: 0 0 25px #67e8f9;
-        }
+      <div className="relative w-[400px] h-[600px] bg-zinc-900 border-4 border-cyan-400 overflow-hidden rounded-2xl">
 
-        .animate-sway {
-          animation: sway 4s ease-in-out infinite;
-          transform-origin: bottom center;
-        }
+        {/* player */}
+        <div
+          className="absolute bottom-4 w-10 h-10 bg-cyan-400 rounded-md shadow-[0_0_20px_#22d3ee]"
+          style={{
+            left: playerX,
+          }}
+        />
 
-        @keyframes sway {
-          0% {
-            transform: rotate(-3deg);
-          }
-          50% {
-            transform: rotate(3deg);
-          }
-          100% {
-            transform: rotate(-3deg);
-          }
-        }
-      `}</style>
+        {/* enemy */}
+        <div
+          className="absolute w-10 h-10 bg-red-500 rounded-md shadow-[0_0_20px_red]"
+          style={{
+            top: enemyY,
+            left: enemyX,
+          }}
+        />
+      </div>
+
+      {gameOver && (
+        <div className="mt-6 flex flex-col items-center">
+          <div className="text-3xl text-red-500 mb-4">
+            Game Over
+          </div>
+
+          <button
+            onClick={restart}
+            className="px-6 py-3 bg-cyan-400 text-black rounded-xl font-bold hover:scale-105 transition"
+          >
+            Restart
+          </button>
+        </div>
+      )}
+
+      <div className="mt-6 text-zinc-400">
+        Use ← → to move
+      </div>
     </div>
   )
 }
