@@ -1,122 +1,71 @@
 export default function App() {
   return (
-    <Game />
-  )
-}
-
-import { useEffect, useState } from "react"
-
-function Game() {
-  const [playerX, setPlayerX] = useState(180)
-  const [enemyY, setEnemyY] = useState(-60)
-  const [enemyX, setEnemyX] = useState(
-    Math.floor(Math.random() * 360)
-  )
-  const [score, setScore] = useState(0)
-  const [gameOver, setGameOver] = useState(false)
-
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "ArrowLeft") {
-        setPlayerX((prev) => Math.max(prev - 25, 0))
-      }
-
-      if (e.key === "ArrowRight") {
-        setPlayerX((prev) => Math.min(prev + 25, 360))
-      }
-    }
-
-    window.addEventListener("keydown", handleKey)
-
-    return () =>
-      window.removeEventListener("keydown", handleKey)
-  }, [])
-
-  useEffect(() => {
-    if (gameOver) return
-
-    const interval = setInterval(() => {
-      setEnemyY((prev) => {
-        const next = prev + 8
-
-        if (
-          next > 500 &&
-          enemyX < playerX + 40 &&
-          enemyX + 40 > playerX
-        ) {
-          setGameOver(true)
-        }
-
-        if (next > 600) {
-          setScore((s) => s + 1)
-          setEnemyX(Math.floor(Math.random() * 360))
-          return -60
-        }
-
-        return next
-      })
-    }, 30)
-
-    return () => clearInterval(interval)
-  }, [enemyX, playerX, gameOver])
-
-  const restart = () => {
-    setPlayerX(180)
-    setEnemyY(-60)
-    setEnemyX(Math.floor(Math.random() * 360))
-    setScore(0)
-    setGameOver(false)
-  }
-
-  return (
-    <div className="bg-black min-h-screen flex flex-col items-center justify-center text-white overflow-hidden">
+    <div className="bg-black min-h-screen flex items-center justify-center overflow-hidden">
       
-      <h1 className="text-4xl mb-4 font-bold text-cyan-400">
-        Dodge Game
-      </h1>
+      <div className="relative animate-float">
 
-      <div className="text-xl mb-4">
-        Score: {score}
-      </div>
+        {/* stem */}
+        <div className="w-2 h-72 bg-green-400 mx-auto rounded-full shadow-[0_0_20px_#4ade80]"></div>
 
-      <div className="relative w-[400px] h-[600px] bg-zinc-900 border-4 border-cyan-400 overflow-hidden rounded-2xl">
+        {/* leaves */}
+        <div className="absolute bottom-32 -left-10 w-20 h-10 bg-green-300 rounded-full rotate-[-30deg] opacity-80 shadow-[0_0_20px_#86efac]"></div>
 
-        {/* player */}
-        <div
-          className="absolute bottom-4 w-10 h-10 bg-cyan-400 rounded-md shadow-[0_0_20px_#22d3ee]"
-          style={{
-            left: playerX,
-          }}
-        />
+        <div className="absolute bottom-48 left-6 w-20 h-10 bg-green-300 rounded-full rotate-[30deg] opacity-80 shadow-[0_0_20px_#86efac]"></div>
 
-        {/* enemy */}
-        <div
-          className="absolute w-10 h-10 bg-red-500 rounded-md shadow-[0_0_20px_red]"
-          style={{
-            top: enemyY,
-            left: enemyX,
-          }}
-        />
-      </div>
+        {/* flower */}
+        <div className="absolute top-[-110px] left-1/2 -translate-x-1/2">
+          
+          <div className="relative w-44 h-44">
 
-      {gameOver && (
-        <div className="mt-6 flex flex-col items-center">
-          <div className="text-3xl text-red-500 mb-4">
-            Game Over
+            <div className="petal rotate-0"></div>
+            <div className="petal rotate-45"></div>
+            <div className="petal rotate-90"></div>
+            <div className="petal rotate-[135deg]"></div>
+            <div className="petal rotate-[22deg]"></div>
+            <div className="petal rotate-[67deg]"></div>
+            <div className="petal rotate-[112deg]"></div>
+            <div className="petal rotate-[157deg]"></div>
+
+            {/* center */}
+            <div className="absolute top-1/2 left-1/2 w-14 h-14 bg-yellow-300 rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_40px_#fde047] border-4 border-yellow-100"></div>
+
           </div>
-
-          <button
-            onClick={restart}
-            className="px-6 py-3 bg-cyan-400 text-black rounded-xl font-bold hover:scale-105 transition"
-          >
-            Restart
-          </button>
         </div>
-      )}
-
-      <div className="mt-6 text-zinc-400">
-        Use ← → to move
       </div>
+
+      <style>{`
+        .petal {
+          position: absolute;
+          width: 70px;
+          height: 140px;
+          background: linear-gradient(to top, #f9a8d4, #fbcfe8);
+          border-radius: 9999px;
+          left: 50%;
+          top: 50%;
+          transform-origin: center bottom;
+          opacity: 0.95;
+          box-shadow: 0 0 25px #f9a8d4;
+        }
+
+        .animate-float {
+          animation: float 4s ease-in-out infinite;
+          transform-origin: bottom center;
+        }
+
+        @keyframes float {
+          0% {
+            transform: rotate(-2deg) translateY(0px);
+          }
+
+          50% {
+            transform: rotate(2deg) translateY(-10px);
+          }
+
+          100% {
+            transform: rotate(-2deg) translateY(0px);
+          }
+        }
+      `}</style>
     </div>
   )
 }
